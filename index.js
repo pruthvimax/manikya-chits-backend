@@ -3,6 +3,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 
+// Load environment variables
+dotenv.config();
+
 // ROUTES
 import outstandingRoutes from "./routes/outstandingRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
@@ -14,19 +17,26 @@ import groupRoutes from "./routes/groupRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import memberInterestRoutes from "./routes/memberInterestRoutes.js";
 
-dotenv.config();
-
 const app = express();
 
-// ✅ Middleware
+// ----------------- DEBUG ENV VARIABLES -----------------
+console.log("TWILIO_ACCOUNT_SID:", process.env.TWILIO_ACCOUNT_SID ? "Loaded ✅" : "Missing ❌");
+console.log("TWILIO_AUTH_TOKEN:", process.env.TWILIO_AUTH_TOKEN ? "Loaded ✅" : "Missing ❌");
+console.log("TWILIO_WHATSAPP_FROM:", process.env.TWILIO_WHATSAPP_FROM);
+
+// ----------------- MIDDLEWARE -----------------
 app.use(cors());
 app.use(express.json());
 
 // ----------------- DATABASE CONNECTION -----------------
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected Successfully"))
-  .catch((err) => console.error("❌ MongoDB Error:", err));
+  .then(() => {
+    console.log("✅ MongoDB Connected Successfully");
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB Connection Error:", err);
+  });
 
 // ----------------- ROUTES -----------------
 app.use("/api/chitscheme", chitSchemeRoutes);
@@ -48,5 +58,5 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`✅ Backend running on port ${PORT}`);
+  console.log(`🚀 Backend running on port ${PORT}`);
 });
