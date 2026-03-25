@@ -1,5 +1,4 @@
 import express from "express";
-import { checkEmployeeStatus } from "../controllers/employeeController.js";
 import {
   addEmployee,
   getEmployee,
@@ -9,49 +8,34 @@ import {
   loginEmployee,
   getEmployeeDashboardSummary,
   getEmployeeCollections,
+  checkEmployeeStatus,
 } from "../controllers/employeeController.js";
 
 const router = express.Router();
 
 /* =================================================
-   ============ AUTH & EMPLOYEE APIs ===============
+   AUTH
    ================================================= */
-
-// AUTH
 router.post("/add", addEmployee);
 router.post("/login", loginEmployee);
 
 /* =================================================
-   ============ DASHBOARD & COLLECTIONS ============
-   🔴 MUST COME BEFORE "/:emp_id"
+   DASHBOARD & COLLECTIONS
    ================================================= */
-
-// EMPLOYEE DASHBOARD
 router.get("/dashboard/summary", getEmployeeDashboardSummary);
-
-// EMPLOYEE COLLECTIONS
 router.get("/collections", getEmployeeCollections);
 
 /* =================================================
-   ============ EMPLOYEE CRUD ======================
+   OTHER SPECIAL ROUTES (KEEP BEFORE /:emp_id)
    ================================================= */
-
-// GET ALL EMPLOYEES
-router.get("/", getAllEmployees);
-
-// GET ONE EMPLOYEE
-router.get("/:emp_id", getEmployee);
-
-// UPDATE EMPLOYEE
-router.put("/:emp_id", updateEmployee);
-
-// DELETE EMPLOYEE
-router.delete("/:emp_id", deleteEmployee);
 router.get("/check-status/:emp_id", checkEmployeeStatus);
 
-
-console.log("EMPLOYEE CONTROLLER EXPORTS:", {
-  addEmployee,
-});
+/* =================================================
+   CRUD
+   ================================================= */
+router.get("/", getAllEmployees);
+router.get("/:emp_id", getEmployee);
+router.put("/:emp_id", updateEmployee);
+router.delete("/:emp_id", deleteEmployee);
 
 export default router;

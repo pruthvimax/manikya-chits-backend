@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
    EMPLOYEE CRUD
    ================================================= */
 
-// ADD EMPLOYEE
+// ADD EMPLOYEE (let middleware hash)
 export const addEmployee = async (req, res) => {
   try {
     const { emp_id, name, email, phone, address, password } = req.body;
@@ -21,18 +21,17 @@ export const addEmployee = async (req, res) => {
       return res.status(400).json({ message: "Employee already exists" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const employee = new Employee({
       emp_id,
       name,
       email,
       phone,
       address,
-      password: hashedPassword,
+      password, // ✅ plain password
     });
 
-    await employee.save();
+    await employee.save(); // ✅ middleware hashes
+
     res.status(201).json({ message: "Employee added", employee });
   } catch (err) {
     res.status(500).json({ message: "Failed to add employee" });
@@ -67,17 +66,36 @@ export const getEmployee = async (req, res) => {
   }
 };
 
-// UPDATE EMPLOYEE
+// ✅ UPDATE EMPLOYEE (FIXED)
 export const updateEmployee = async (req, res) => {
   try {
-    const updated = await Employee.findOneAndUpdate(
-      { emp_id: req.params.emp_id },
-      req.body,
-      { new: true }
-    );
+      console.log("Received featureAccess:", req.body.featureAccess);
+    const employee = await Employee.findOne({ emp_id: req.params.emp_id });
 
-    res.json({ message: "Employee updated", updated });
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    // update normal fields
+    employee.name = req.body.name ?? employee.name;
+    employee.email = req.body.email ?? employee.email;
+    employee.phone = req.body.phone ?? employee.phone;
+    employee.address = req.body.address ?? employee.address;
+    employee.status = req.body.status ?? employee.status; 
+    employee.featureAccess =
+  req.body.featureAccess ?? employee.featureAccess;
+
+    // ✅ HANDLE PASSWORD CORRECTLY
+    if (req.body.password && req.body.password.trim() !== "") {
+      const salt = await bcrypt.genSalt(10);
+     employee.password = req.body.password; // ✅ plain
+    }
+
+    await employee.save(); // ✅ triggers middleware also
+
+    res.json({ message: "Employee updated", employee });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Failed to update employee" });
   }
 };
@@ -105,39 +123,37 @@ export const loginEmployee = async (req, res) => {
     }
 
     const employee = await Employee.findOne({ emp_id });
+
     if (!employee) {
-  return res.status(404).json({ message: "Employee not found" });
-}
+      return res.status(404).json({ message: "Employee not found" });
+    }
 
-if (employee.status !== "active") {
-  return res.status(403).json({
-    message: "Account is inactive",
-  });
-}
-
+    if (employee.status !== "active") {
+      return res.status(403).json({ message: "Account is inactive" });
+    }
 
     const isMatch = await bcrypt.compare(password, employee.password);
+
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid password" });
     }
 
-   res.json({
-  message: "Login successful",
-  employee: {
-    emp_id: employee.emp_id,
-    name: employee.name,
-    phone: employee.phone,
-    status: employee.status, // ✅ IMPORTANT
-  },
-});
-
+    res.json({
+      message: "Login successful",
+      employee: {
+        emp_id: employee.emp_id,
+        name: employee.name,
+        phone: employee.phone,
+        status: employee.status,
+      },
+    });
   } catch (err) {
     res.status(500).json({ message: "Login failed" });
   }
 };
 
 /* =================================================
-   EMPLOYEE DASHBOARD SUMMARY (YOUR ORIGINAL CODE)
+   DASHBOARD + COLLECTIONS (UNCHANGED)
    ================================================= */
 
 export const getEmployeeDashboardSummary = async (req, res) => {
@@ -185,14 +201,9 @@ export const getEmployeeDashboardSummary = async (req, res) => {
   }
 };
 
-/* =================================================
-   EMPLOYEE COLLECTIONS (YOUR ORIGINAL CODE)
-   ================================================= */
-
 export const getEmployeeCollections = async (req, res) => {
   try {
     const collections = [];
-
     const groups = await Group.find();
 
     groups.forEach((group) => {
@@ -222,20 +233,19 @@ export const getEmployeeCollections = async (req, res) => {
 
 export const checkEmployeeStatus = async (req, res) => {
   try {
-    const { emp_id } = req.params;
-
-    const employee = await Employee.findOne({ emp_id });
+    const employee = await Employee.findOne({ emp_id: req.params.emp_id });
 
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-    if (employee.status !== "active") {
-      return res.status(403).json({ message: "Account inactive" });
-    }
+res.json({
+  status: employee.status,
+  featureAccess: employee.featureAccess,
+});
 
-    res.json({ status: "active" });
   } catch (err) {
     res.status(500).json({ message: "Server Error" });
   }
 };
+

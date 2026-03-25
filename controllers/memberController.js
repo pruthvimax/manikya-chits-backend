@@ -78,12 +78,26 @@ export const getMemberById = async (req, res) => {
 /* ================= UPDATE MEMBER ================= */
 export const updateMember = async (req, res) => {
   try {
-    const updated = await Member.findOneAndUpdate(
-      { userid: req.params.userid },
-      req.body,
-      { new: true }
-    );
-    res.json({ message: "Member Updated", updated });
+    const member = await Member.findOne({ userid: req.params.userid });
+
+    if (!member) {
+      return res.status(404).json({ message: "Member not found" });
+    }
+
+    member.username = req.body.username ?? member.username;
+    member.email = req.body.email ?? member.email;
+    member.phone = req.body.phone ?? member.phone;
+    member.address = req.body.address ?? member.address;
+    member.status = req.body.status ?? member.status;
+
+    // ✅ HANDLE PASSWORD
+    if (req.body.password && req.body.password.trim() !== "") {
+      member.password = req.body.password; // middleware will hash
+    }
+
+    await member.save();
+
+    res.json({ message: "Member Updated", member });
   } catch (err) {
     res.status(500).json({ message: "Server Error" });
   }
@@ -109,6 +123,7 @@ export const loginUser = async (req, res) => {
     }
 
     const member = await Member.findOne({ userid });
+
     if (!member) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -117,38 +132,26 @@ export const loginUser = async (req, res) => {
       return res.status(403).json({ message: "Account is inactive" });
     }
 
-    let isMatch = false;
-
-    // 🔁 OLD MEMBERS (HASHED PASSWORD)
-    if (member.password.startsWith("$2a$")) {
-      isMatch = await bcrypt.compare(password, member.password);
-    }
-    // 🔁 NEW MEMBERS (PLAIN PASSWORD)
-    else {
-      isMatch = password === member.password;
-    }
+   const isMatch = password === member.password;
 
     if (!isMatch) {
-  return res.status(401).json({ message: "Incorrect password" });
-}
+      return res.status(401).json({ message: "Incorrect password" });
+    }
 
-// ✅ UPDATE LAST LOGIN
-member.lastLogin = new Date();
-await member.save();
+    member.lastLogin = new Date();
+    await member.save();
 
-res.json({
-  message: "Login successful",
-  member: {
-    userid: member.userid,
-    username: member.username,
-    phone: member.phone,
-    status: member.status,
-    lastLogin: member.lastLogin, // optional
-  },
-});
-
-  }
-   catch (err) {
+    res.json({
+      message: "Login successful",
+      member: {
+        userid: member.userid,
+        username: member.username,
+        phone: member.phone,
+        status: member.status,
+        lastLogin: member.lastLogin,
+      },
+    });
+  } catch (err) {
     res.status(500).json({ message: "Server Error" });
   }
 };

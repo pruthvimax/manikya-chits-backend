@@ -13,5 +13,9 @@ const memberSchema = new mongoose.Schema({
   status: { type: String, enum: ["active", "inactive"], default: "active" },
 });
 
+// ✅ ONLY THIS
+const Member =
+  mongoose.models.Member || mongoose.model("Member", memberSchema);
 
-export default mongoose.model("Member", memberSchema);
+// ✅ EXPORT THIS (NOT mongoose.model again)
+export default Member;
