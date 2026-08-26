@@ -1,0 +1,13 @@
+0000000000000000000000000000000000000000 f22a5f3afa0159b459d0be735b4e83d0d11881a9 Pruthvi G <144210575+pruthvimax@users.noreply.github.com> 1770840444 +0530	commit (initial): Deploy backend to Render
+f22a5f3afa0159b459d0be735b4e83d0d11881a9 f22a5f3afa0159b459d0be735b4e83d0d11881a9 Pruthvi G <144210575+pruthvimax@users.noreply.github.com> 1770840484 +0530	Branch: renamed refs/heads/master to refs/heads/main
+f22a5f3afa0159b459d0be735b4e83d0d11881a9 361addc23784fbcfcc2b115d47c475f5903f08db Pruthvi G <144210575+pruthvimax@users.noreply.github.com> 1770841288 +0530	commit: Render deploy fix
+361addc23784fbcfcc2b115d47c475f5903f08db 24f980e88c552f83e27083c152a0fb59840ef70e Pruthvi G <pruthvialalliprivate@gmail.com> 1773309183 +0530	commit: Manikya Chits backend with Twilio OTP
+24f980e88c552f83e27083c152a0fb59840ef70e bcd9d59d6f6e3e840d8ebb20e12f16af6ff1aac7 Pruthvi G <pruthvialalliprivate@gmail.com> 1774460793 +0530	commit: Updated backend for production release
+bcd9d59d6f6e3e840d8ebb20e12f16af6ff1aac7 21dbf0e70c45dc7b97ba0a95a9e02e45fa6f81db Pruthvi G <pruthvialalliprivate@gmail.com> 1774460878 +0530	pull origin main --rebase (finish): refs/heads/main onto 3b1ad6fb2e041d2a775ccdb76b9d4425bf25f91a
+21dbf0e70c45dc7b97ba0a95a9e02e45fa6f81db b17bae4a7cdeb0f66ab110d7487b47533a84b5dc Pruthvi G <pruthvialalliprivate@gmail.com> 1774547949 +0530	commit: Ignore env file
+b17bae4a7cdeb0f66ab110d7487b47533a84b5dc e0a5985280113e6d0c114b255875aa728135c21a Pruthvi G <pruthvialalliprivate@gmail.com> 1780724497 +0530	commit: Update backend
+e0a5985280113e6d0c114b255875aa728135c21a f0ddf12c0260c3f8e68e07b7a0dc6b0cb235f5e5 Pruthvi G <pruthvialalliprivate@gmail.com> 1782227788 +0530	commit: Fix receipt printing and payment updates
+f0ddf12c0260c3f8e68e07b7a0dc6b0cb235f5e5 0f778406c8003e2d479a3fa68f71b75bdf407850 Pruthvi G <pruthvialalliprivate@gmail.com> 1783615919 +0530	commit: Added freeze/unfreeze feature for monthly targets
+0f778406c8003e2d479a3fa68f71b75bdf407850 a8c69e73b435b5c47de10b1a9d4d0a76aa41fe16 Pruthvi G <pruthvialalliprivate@gmail.com> 1784185240 +0530	commit: Updated backend payment history and bug fixes
+a8c69e73b435b5c47de10b1a9d4d0a76aa41fe16 9f379204cc61981cda056bb501c53cb2915f61fd Pruthvi G <pruthvialalliprivate@gmail.com> 1785263709 +0530	commit: Updated backend payment history and bug fixes
+9f379204cc61981cda056bb501c53cb2915f61fd 803cfb0ef9215d63cea492c7c4ff9e511ea81898 Pruthvi G <pruthvialalliprivate@gmail.com> 1786255531 +0530	commit: Update backend
