@@ -1,5 +1,9 @@
 import DailyDatabase from "../models/DailyDatabase.js";
 
+// follow-up date must look like 2026-11-05 (date only)
+const isValidFollowUpDate = (v) =>
+  typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v);
+
 /* =========================================================
    EMPLOYEE — create a new lead entry
    POST /daily-database
@@ -11,10 +15,12 @@ export const createEntry = async (req, res) => {
       employeeName,
       name,
       phone,
+      telephone,
       occupation,
       workAddress,
       permanentAddress,
       action,
+      followUpDate,
     } = req.body;
 
     if (!empId || !employeeName || !name || !phone) {
@@ -28,10 +34,12 @@ export const createEntry = async (req, res) => {
       employeeName,
       name,
       phone,
+      telephone,
       occupation,
       workAddress,
       permanentAddress,
       action: ["Hot", "Warm", "Cold"].includes(action) ? action : "Warm",
+      followUpDate: isValidFollowUpDate(followUpDate) ? followUpDate : "",
     });
 
     res.status(201).json(entry);
@@ -48,9 +56,11 @@ export const createEntry = async (req, res) => {
 export const getEntriesByEmployee = async (req, res) => {
   try {
     const { empId } = req.params;
-    const entries = await DailyDatabase.find({ empId }).sort({
-      createdAt: -1,
-    });
+    const entries = await DailyDatabase.find({ empId })
+      .sort({
+        createdAt: -1,
+      })
+      .lean();
     res.json(entries);
   } catch (err) {
     console.log("getEntriesByEmployee error:", err);
@@ -107,20 +117,38 @@ export const updateEntry = async (req, res) => {
     const {
       name,
       phone,
+      telephone,
       occupation,
       workAddress,
       permanentAddress,
       action,
+      followUpDate,
     } = req.body;
 
     const updates = {};
     if (name !== undefined) updates.name = name;
     if (phone !== undefined) updates.phone = phone;
+    // FIXED: telephone was missing entirely from the update payload --
+    // the admin's edit modal now sends it, but it was never read here,
+    // so it could never actually be saved.
+    if (telephone !== undefined) updates.telephone = telephone;
     if (occupation !== undefined) updates.occupation = occupation;
     if (workAddress !== undefined) updates.workAddress = workAddress;
     if (permanentAddress !== undefined)
       updates.permanentAddress = permanentAddress;
     if (["Hot", "Warm", "Cold"].includes(action)) updates.action = action;
+
+    // Follow-up date (admin only). A CHANGED date puts the follow-up back to
+    // "pending" (not done); saving the same date again leaves "done" alone.
+    if (followUpDate !== undefined) {
+      const nextDate = isValidFollowUpDate(followUpDate) ? followUpDate : "";
+      const existing = await DailyDatabase.findById(id).select("followUpDate");
+      if (existing && (existing.followUpDate || "") !== nextDate) {
+        updates.followUpDate = nextDate;
+        updates.followUpDone = false;
+        updates.followUpDoneAt = null;
+      }
+    }
 
     const entry = await DailyDatabase.findByIdAndUpdate(id, updates, {
       new: true,
@@ -151,3 +179,4 @@ export const deleteEntry = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
